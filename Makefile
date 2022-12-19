@@ -8,7 +8,7 @@ FILENAME = program
 
 CC = g++ -g
 CFLAGS = -c -Wall
-CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/freetype/include
+CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/freetype/include -Ilib/glm
 
 LDFLAGS = -lm lib/glad/src/glad.o lib/freetype/build/libfreetype.a
 
@@ -25,17 +25,15 @@ build: libs dirs clean ${OUT_DIR}/${FILENAME}
 dirs:
 	mkdir -p ${BIN_DIR} ${OUT_DIR}
 
-ifneq ($(OS),Windows_NT)
 libs:
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
-	cd lib/glfw && cmake . && make
+	@if [ $(OS) != "Windows_NT" ]; then\
+		cd lib/glfw && cmake . && make\
+	fi
 	mkdir -p lib/freetype/build
 	cd lib/freetype/build && cmake .. && make
-else
-libs:
-	mkdir -p lib/freetype/build
-	cd lib/freetype/build && cmake .. -G "MinGW Makefiles" && make
-endif
+	mkdir -p lib/glm/build
+	cd lib/glm/build && cmake .. && make
 
 ${OUT_DIR}/${FILENAME}: $(OBJ_FILES) 
 	${CC} -o $@ $^ ${LDFLAGS}

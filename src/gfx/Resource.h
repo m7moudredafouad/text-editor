@@ -1,18 +1,12 @@
 #pragma once
 
-#include <unordered_map>
+#include <gfx/gfx.h>
+#include <gfx/Shader.h>
+#include <gfx/Texture.h>
 
-#include "gfx.h"
-#include "Buffers.h"
-#include "Shader.h"
-#include "Texture.h"
-#include "Window.h"
-#include "Character.h"
-
-
-enum ShaderEnum {
-    NONE,
-    BASIC,
+struct sCharDiscriptor {
+    uint32_t texture_id, width, height;
+    int32_t bitmap_left, bitmap_top, advance;
 };
 
 /**
@@ -21,24 +15,25 @@ enum ShaderEnum {
  */
 class Resource {
 private:
-    static std::unordered_map<ShaderEnum, Shader *> m_shaders;
-    static ShaderEnum m_last_used_shader;
-    static std::unordered_map<TextureEnum, Texture *> m_texture;
-    static TextureEnum m_last_used_texture;
+    static std::unordered_map<std::string, Shader *> m_shaders;
+    static std::string m_last_used_shader;
+    static std::unordered_map<uint32_t, Texture *> m_texture;
+    static uint32_t m_last_used_texture;
 
+    static std::unordered_map<std::string, std::vector<sCharDiscriptor>> m_fonts;
 private: // PRIVATE FUNCTIONS
     Resource();
     Resource(const Resource&) = delete;
 public:
     static void startup();
     static void shutdown();
-    static const Shader & getShader(ShaderEnum shaderName);
-    static const Shader & useShader(ShaderEnum shaderName);
-    static const Texture & getTexture(TextureEnum textureName);
-    static const Texture & useTexture(TextureEnum textureName);
+    static const Shader & getShader(std::string shaderName);
+    static const Shader & useShader(std::string shaderName);
+    static const Texture & getTexture(uint32_t textureName);
     static const Texture & useTexture(uint32_t textureName);
 
-    static Character getChar(int idx);
+    static void loadFont(std::string font_name);
+    static sCharDiscriptor getChar(char the_char, std::string font_name = "arial");
     ~Resource() {}
 
 };  // class Renderer

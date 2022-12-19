@@ -1,7 +1,6 @@
 #pragma once
 
-#include "gfx.h"
-#include <vector>
+#include <gfx/gfx.h>
 
 /**
  * @brief Singleton Window
@@ -21,8 +20,6 @@ struct Mouse{
     Button keys[GLFW_MOUSE_BUTTON_LAST];
     float x, y, dx, dy,delta_time;
 };
-
-typedef void(*KEY_Handler)(const Keyboard &);
 
 class Window {
 private:

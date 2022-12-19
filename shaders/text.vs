@@ -10,7 +10,7 @@ out vec2 v_TexCoords;
 
 void main() {
     gl_Position = projection * vec4(pos, 0.0, 1.0);
-    v_Color = vec4(1.0, 1.0, 1.0, 1.0);
+    v_Color = vec4(0.5, 0.8, 0.2, 1.0);
     v_TexCoords = TexCoords;
 
 }

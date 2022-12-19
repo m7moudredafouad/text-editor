@@ -1,5 +1,5 @@
-#include "Window.h"
-#include <iostream>
+#include <gfx/Window.h>
+#include <gfx/Resource.h>
 
 GLFWwindow * Window::m_window = nullptr;
 
@@ -54,16 +54,15 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 	ASSERT(init && render && destroy, "WINDOW::Functions are not intialized");
 
 	init();
-	GLCall(glEnable(GL_CULL_FACE));
-	// GLCall(glCullFace(GL_BACK));
-	// GLCall(glEnable(GL_PROGRAM_POINT_SIZE));
 
+    Resource::useShader("text").setUniform("projection", glm::ortho(0.0f, float(Window::m_width), 0.0f, float(Window::m_height)));
+	GLCall(glEnable(GL_CULL_FACE));
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     while(!glfwWindowShouldClose(m_window)){
-		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		float current_time = glfwGetTime();
 		Window::m_delta_time = current_time - Window::m_last_time;
@@ -83,6 +82,7 @@ void Window::_handle_resize(GLFWwindow* window, int width, int height) {
 	Window::m_width = width;
 	Window::m_height = height;
     glViewport(0, 0, width, height);
+    Resource::getShader("text").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
 }
 
 void Window::_handle_key(GLFWwindow* window, int key, int scancode, int action, int mods) {

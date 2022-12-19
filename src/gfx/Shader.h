@@ -1,12 +1,7 @@
 #ifndef _SHADER_H
 #define _SHADER_H
 
-#include "gfx.h"
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <string.h>
+#include <gfx/gfx.h>
 
 class Shader {
 private:

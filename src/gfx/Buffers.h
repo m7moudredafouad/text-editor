@@ -1,8 +1,7 @@
 #ifndef __BUFFERS_H_
 #define __BUFFERS_H_
 
-#include "gfx.h"
-#include <vector>
+#include <gfx/gfx.h>
 
 /**
  * @brief BufferInterface

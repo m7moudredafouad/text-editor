@@ -1,6 +1,4 @@
 #include "Shader.h"
-#include "../utils/error.h"
-
 
 Shader::Shader(std::string path) {
     uint32_t vs = this->_compile(path+".vs", GL_VERTEX_SHADER);
@@ -80,25 +78,25 @@ uint32_t Shader::getUniform(const char * name) const {
     return location;
 }
 
-template<> const Shader& Shader::setUniform<std::vector<std::vector<float>>>(const char *name, const std::vector<std::vector<float>> & value) const {
-    GLCall(glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, (const float *) &value));
+template<> const Shader& Shader::setUniform<glm::mat4>(const char *name, const glm::mat4 & value) const {
+    GLCall(glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, glm::value_ptr(value)));
     return *this;
 }
 
-// template<> const Shader& Shader::setUniform<glm::vec2>(const char *name, const glm::vec2 & value) const {
-//     GLCall(glUniform2f(getUniform(name), value.x, value.y));
-//     return *this;
-// }
+template<> const Shader& Shader::setUniform<glm::vec2>(const char *name, const glm::vec2 & value) const {
+    GLCall(glUniform2f(getUniform(name), value.x, value.y));
+    return *this;
+}
 
-// template<> const Shader& Shader::setUniform<glm::vec3>(const char *name, const glm::vec3 & value) const {
-//     GLCall(glUniform3f(getUniform(name), value.x, value.y, value.z));
-//     return *this;
-// }
+template<> const Shader& Shader::setUniform<glm::vec3>(const char *name, const glm::vec3 & value) const {
+    GLCall(glUniform3f(getUniform(name), value.x, value.y, value.z));
+    return *this;
+}
 
-// template<> const Shader& Shader::setUniform<glm::vec4>(const char *name, const glm::vec4 & value) const {
-//     GLCall(glUniform4f(getUniform(name), value.x, value.y, value.z, value.w));
-//     return *this;
-// }
+template<> const Shader& Shader::setUniform<glm::vec4>(const char *name, const glm::vec4 & value) const {
+    GLCall(glUniform4f(getUniform(name), value.x, value.y, value.z, value.w));
+    return *this;
+}
 
 template<> const Shader& Shader::setUniform<float>(const char *name, const float & value) const {
     GLCall(glUniform1f(getUniform(name), value));
