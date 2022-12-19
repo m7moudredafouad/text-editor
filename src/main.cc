@@ -1,31 +1,13 @@
-#include <main.h>
+#include <gfx/gfx.h>
+#include <gfx/lib_gfx.h>
 
-static std::shared_ptr<CharMesh> text;
-
-Window * window = static_cast<Window *>(&Window::getInstance());
-
-void init() {
-    Resource::startup();
-    text = std::shared_ptr<CharMesh>(new CharMesh(1));
-}
-
-void render() {
-    float x = 100, y = 100;
-    glActiveTexture(GL_TEXTURE0);
-    for (uint8_t c = 65; c < 70; c++) {
-        text->Render(c, "arial", x, y, x);
-    }
-}
-
-void destroy() {
-    Resource::shutdown();
+void loop() {
+    gfx::render_text("Mahmoud is here", 0.0f, 0.0f, "consola", 32);
+    gfx::render_text("Hello", 0.0f, 20.0f, "arial");
 }
 
 int main() {
-	window->create();
-	window->loop(init, render, destroy);
+	gfx::create_window("Test", loop);
 
 	exit(EXIT_SUCCESS);
 }
-
-

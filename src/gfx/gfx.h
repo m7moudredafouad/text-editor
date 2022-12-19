@@ -20,6 +20,3 @@
 
 
 #include <gfx/error.h>
-
-size_t sizeofGlType(uint32_t type);
-

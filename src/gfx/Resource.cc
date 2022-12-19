@@ -13,6 +13,7 @@ void Resource::startup() {
     m_shaders["text"] = new Shader("./shaders/text");
     
     Resource::loadFont("arial");
+    Resource::loadFont("consola");
 }
 
 void Resource::shutdown() {

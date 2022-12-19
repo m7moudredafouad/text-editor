@@ -46,7 +46,7 @@ private:    // Private Functions
     Window();
     Window(const Window &) = delete;
 public:
-    void create(const char * name="Game", uint32_t width=1024, uint32_t height=768);
+    void create(const char * name, uint32_t width=1024, uint32_t height=768);
     void loop(void (*init)(void), void (*render)(void), void (*destroy)(void));
 
     ~Window();
