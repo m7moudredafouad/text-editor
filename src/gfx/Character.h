@@ -44,7 +44,7 @@ public:
     }
 
     void Render(char ch, float x, float y, float & new_x, std::string font_name, int font_size, const float (&font_color)[3]) {
-        float scale = (float)font_size / 48;
+        float scale = (float)font_size / FONT_LOAD_SIZE;
         auto the_char = Resource::getChar(ch, font_name);
 
         new_x = x + (the_char.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)

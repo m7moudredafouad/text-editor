@@ -18,5 +18,6 @@
 #include <string>
 #include <string.h>
 
-
 #include <gfx/error.h>
+
+#define FONT_LOAD_SIZE (16)

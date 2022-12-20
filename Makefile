@@ -45,7 +45,7 @@ $(BIN_DIR)/%.o: $(SRC_DIR)/*/%.cc
 	${CC} -o $@ $< $(CFLAGS)
 
 run:
-	./${OUT_DIR}/${FILENAME}
+	./${OUT_DIR}/${FILENAME} test.txt
 
 clean:
 	rm -rf ${BIN_DIR}/* ${OUT_DIR}/program.exe

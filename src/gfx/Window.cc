@@ -47,7 +47,7 @@ void Window::create(const char * name, uint32_t width, uint32_t height) {
 	glfwSetCursorPosCallback(m_window, _handle_mouse_pos);
 	glfwSetMouseButtonCallback(m_window, _handle_mouse_key);
 
-	glfwSwapInterval(1);
+	glfwSwapInterval(15);
 }
 
 void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void)) {

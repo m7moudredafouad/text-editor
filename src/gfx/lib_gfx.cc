@@ -20,16 +20,16 @@ void create_window(const char * name, void (*render)(void)) {
 	window->loop(init, render, destroy);
 }
 
-void render_char(const char the_char, float &x, float &y, const std::string & font_name, int font_size, const float (&font_color)[3]) {
+void render_char(const char the_char, float &x, float &y, const sFont & font) {
     static CharMesh text_mesh(1);
-    text_mesh.Render(the_char, x, y, x, font_name, font_size, font_color);
+    text_mesh.Render(the_char, x, y, x, font.name, font.size, font.color);
 }
 
-void render_text(const std::string & text, float x, float y, const std::string & font_name, int font_size, const float (&font_color)[3]) {
+void render_text(const std::string & text, sPos pos, const sFont & font) {
     for(const auto & ch : text) {
-        render_char(ch, x, y, font_name, font_size, font_color);
+        render_char(ch, pos.x, pos.y, font);
     }
 }
 
 
-}
+} // namespace gfx

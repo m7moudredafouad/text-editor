@@ -12,7 +12,7 @@ void Resource::startup() {
     // Create shaders
     m_shaders["text"] = new Shader("./shaders/text");
     
-    Resource::loadFont("arial");
+    // Resource::loadFont("arial");
     Resource::loadFont("consola");
 }
 
@@ -37,7 +37,7 @@ void Resource::loadFont(std::string font_name) {
     std::string font_path = "./fonts/" + font_name + ".ttf";
     ASSERT(FT_New_Face(ft, &font_path[0], 0, &face) == 0, "ERROR::FREETYPE: Failed to load font");
 
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, FONT_LOAD_SIZE);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
   
     sTexture tmp_texture_structre;
