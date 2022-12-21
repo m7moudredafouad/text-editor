@@ -5,8 +5,16 @@
 
 static std::shared_ptr<Document> test;
 
+void KeyboardEvents() {
+    const auto & keys = gfx::get_keyboard();
+    for(int i = GLFW_KEY_SPACE; i < GLFW_KEY_WORLD_2; i++) {
+        if(keys.keys[i]) std::cout << char(i);
+    }
+}
+
 void loop() {
     test->Render();
+    KeyboardEvents();
 }
 
 int main(int argc, char **argv) {

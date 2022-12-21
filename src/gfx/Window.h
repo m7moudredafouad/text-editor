@@ -7,18 +7,13 @@
  * 
  */
 
-struct Button {
-    double delta;
-    bool down;
-};
-
 struct Keyboard {
-    Button keys[1024];
+    float keys[1024];
 };
 
 struct Mouse{
-    Button keys[GLFW_MOUSE_BUTTON_LAST];
-    float x, y, dx, dy,delta_time;
+    float keys[GLFW_MOUSE_BUTTON_LAST];
+    float x, y, dx, dy, delta_time;
 };
 
 class Window {

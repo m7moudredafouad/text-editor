@@ -8,21 +8,21 @@
 struct sVertex {
     float pos[2];
     float texture_cord[2];
-    float color[3];
+    float color[4];
 };
 
 class char_vertex {
     sVertex points[6];
 public:
-    char_vertex(float x, float y, float w, float h, const float (&color)[3]):
+    char_vertex(float x, float y, float w, float h, const float (&color)[4]):
     points{
-        {{x, y + h},      {0.0f, 0.0f}, {color[0], color[1], color[2]}},            
-        {{x, y},          {0.0f, 1.0f}, {color[0], color[1], color[2]}},
-        {{x + w, y},      {1.0f, 1.0f }, {color[0], color[1], color[2]}},
+        {{x, y + h},      {0.0f, 0.0f}, {color[0], color[1], color[2], color[3]}},            
+        {{x, y},          {0.0f, 1.0f}, {color[0], color[1], color[2], color[3]}},
+        {{x + w, y},      {1.0f, 1.0f }, {color[0], color[1], color[2], color[3]}},
 
-        {{x, y + h},      {0.0f, 0.0f }, {color[0], color[1], color[2]}},
-        {{x + w, y},      {1.0f, 1.0f }, {color[0], color[1], color[2]}},
-        {{x + w, y + h},  {1.0f, 0.0f }, {color[0], color[1], color[2]}}  
+        {{x, y + h},      {0.0f, 0.0f }, {color[0], color[1], color[2], color[3]}},
+        {{x + w, y},      {1.0f, 1.0f }, {color[0], color[1], color[2], color[3]}},
+        {{x + w, y + h},  {1.0f, 0.0f }, {color[0], color[1], color[2], color[3]}}  
     } {  }
 };
 
@@ -32,7 +32,7 @@ public:
         this->layout({
             {2, GL_FLOAT, true},
             {2, GL_FLOAT, true},
-            {3, GL_FLOAT, true}
+            {4, GL_FLOAT, true}
         });
     }
 
@@ -43,7 +43,7 @@ public:
         GLCall(glDrawArrays(GL_TRIANGLES, 0, 6 * sizeof(obj)));
     }
 
-    void Render(char ch, float x, float y, float & new_x, std::string font_name, int font_size, const float (&font_color)[3]) {
+    void Render(char ch, float x, float y, float & new_x, std::string font_name, int font_size, const float (&font_color)[4]) {
         float scale = (float)font_size / FONT_LOAD_SIZE;
         auto the_char = Resource::getChar(ch, font_name);
 
@@ -54,6 +54,7 @@ public:
 
         char_vertex tmp(xpos, ypos, the_char.width * scale, the_char.height * scale, font_color);
 
+        Resource::useShader("text");
         Resource::useTexture(the_char.texture_id);
         this->Render(std::vector<char_vertex> {tmp});
     }

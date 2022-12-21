@@ -47,7 +47,7 @@ void Window::create(const char * name, uint32_t width, uint32_t height) {
 	glfwSetCursorPosCallback(m_window, _handle_mouse_pos);
 	glfwSetMouseButtonCallback(m_window, _handle_mouse_key);
 
-	glfwSwapInterval(15);
+	glfwSwapInterval(2);
 }
 
 void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void)) {
@@ -55,13 +55,15 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 
 	init();
 
+    Resource::useShader("basic").setUniform("projection", glm::ortho(0.0f, float(Window::m_width), 0.0f, float(Window::m_height)));
     Resource::useShader("text").setUniform("projection", glm::ortho(0.0f, float(Window::m_width), 0.0f, float(Window::m_height)));
+
 	GLCall(glEnable(GL_CULL_FACE));
 	GLCall(glEnable(GL_BLEND));
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     while(!glfwWindowShouldClose(m_window)){
-		GLCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+		GLCall(glClearColor(0.18823f, 0.039215f, 0.141176f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		float current_time = glfwGetTime();
@@ -69,6 +71,8 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 		Window::m_last_time = current_time;
 
 		render();
+
+		mouse.dx = mouse.dy = 0; // Reset Mouse deltas
 
 		GLCall(glfwSwapBuffers(m_window));
 		GLCall(glfwPollEvents());
@@ -82,6 +86,7 @@ void Window::_handle_resize(GLFWwindow* window, int width, int height) {
 	Window::m_width = width;
 	Window::m_height = height;
     glViewport(0, 0, width, height);
+    Resource::getShader("basic").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
     Resource::getShader("text").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
 }
 
@@ -91,14 +96,13 @@ void Window::_handle_key(GLFWwindow* window, int key, int scancode, int action, 
 
 	switch (action) {
 	case GLFW_PRESS:
-		Window::keyboard.keys[key] = { m_delta_time, true };
+		Window::keyboard.keys[key] = float(m_delta_time);
 		break;
 	case GLFW_RELEASE:
-		Window::keyboard.keys[key] = { m_delta_time, false };
+		Window::keyboard.keys[key] = 0;
 		break;
-	default:
-		Window::keyboard.keys[key] = { m_delta_time, Window::keyboard.keys[key].down };
-
+	case GLFW_REPEAT:
+		Window::keyboard.keys[key] = Window::keyboard.keys[key] + float(m_delta_time);
 		break;
 	}
 }
@@ -106,25 +110,23 @@ void Window::_handle_key(GLFWwindow* window, int key, int scancode, int action, 
 void Window::_handle_mouse_key(GLFWwindow* handle, int button, int action, int mods) {
 	switch (action) {
 	case GLFW_PRESS:
-		Window::keyboard.keys[button] = { m_delta_time, true };
+	case GLFW_REPEAT:
+		Window::mouse.keys[button] = float(m_delta_time);
 		break;
 	case GLFW_RELEASE:
-		Window::keyboard.keys[button] = { m_delta_time, false };
-		break;
-	default:
-		Window::keyboard.keys[button] = { m_delta_time, Window::keyboard.keys[button].down };
+		Window::mouse.keys[button] = 0.0f;
 		break;
 	}
 }
 
 void Window::_handle_mouse_pos(GLFWwindow* handle, double x, double y) {
-	// mouse.delta_time = m_delta_time;
-	// mouse.dx = mouse.x - x;
-	// mouse.dy = mouse.y - y;
+	mouse.delta_time = m_delta_time;
+	mouse.dx = mouse.x - x;
+	mouse.dy = mouse.y - y;
 	
 	// mouse.dx = saturate(mouse.dx, -100.0f, 100.0f);
 	// mouse.dy = saturate(mouse.dy, -100.0f, 100.0f);
 
-	// mouse.x = x;
-	// mouse.y = y;
+	mouse.x = x;
+	mouse.y = y;
 }

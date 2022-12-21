@@ -32,8 +32,8 @@ public:
     static const Texture & getTexture(uint32_t textureName);
     static const Texture & useTexture(uint32_t textureName);
 
-    static void loadFont(std::string font_name);
-    static sCharDiscriptor getChar(char the_char, std::string font_name = "arial");
+    static void loadFont(std::string font_name, int pixel_size);
+    static sCharDiscriptor getChar(char the_char, std::string font_name = "consola");
     ~Resource() {}
 
 };  // class Renderer

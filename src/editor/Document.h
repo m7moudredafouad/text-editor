@@ -3,13 +3,17 @@
 #include <string>
 #include <gfx/lib_gfx.h>
 #include <utilities/error.h>
+#include <utilities/data_types.h>
 #include <editor/settings.h>
+#include <editor/Scrollbar.h>
 
 class Document {
 private:
-    std::string buffer;
+    std::string m_buffer;
+    vec2 m_max_dims;
+    FullScrollBar m_scrollbar;
 public:
-    Document(char * file_name) {
+    Document(char * file_name) : m_max_dims{0.0f, 0.0f} {
         FILE *file;
 
         ASSERT((file = fopen(file_name, "r")) != nullptr, "File couldn't be opened");
@@ -18,32 +22,36 @@ public:
         size_t len = ftell(file);
         ASSERT(len > 0, "File not successfully read");
 
-        buffer = std::string(len+1, 0);
+        m_buffer = std::string(len+1, 0);
 
         fseek(file, 0, SEEK_SET);
-        fread(&buffer[0], 1, len, file);
+        fread(&m_buffer[0], 1, len, file);
 
-        ASSERT(buffer.length() == len + 1, "file wasn't fully read");
+        ASSERT(m_buffer.length() == len + 1, "file wasn't fully read");
         ASSERT(fclose(file) == 0, "Couldn't close file");
     }
 
     void Render() {
-        
-        float line = 0;
-        float x = START_X, y;
+        m_max_dims = vec2(0.0f, 0.0f);
 
-        for(const auto & ch : buffer) {
-            if(ch == '\n') {
-                line++;
-                x = START_X;
+        float line_number = 0;
+        vec2 pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * line_number + START_Y);
+
+        for(const auto & the_char : m_buffer) {
+            if(the_char != '\n') {
+                pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", FONT_SIZE));
                 continue;
             }
-
-            y = LINE_HEIGHT * FONT_SIZE * line + START_Y;
-
-            gfx::render_char(ch, x, y, gfx::sFont("consola", FONT_SIZE));
+            
+            line_number++;
+            m_max_dims.x = std::max(m_max_dims.x, pos.x);
+            pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * line_number + START_Y);
         }
 
+        m_max_dims.y = pos.y;
+
+        m_scrollbar.Render(m_max_dims, gfx::window_dims());
     }
+    
     ~Document() {}
 };

@@ -11,9 +11,7 @@ std::unordered_map<std::string, std::vector<sCharDiscriptor>> Resource::m_fonts 
 void Resource::startup() {
     // Create shaders
     m_shaders["text"] = new Shader("./shaders/text");
-    
-    // Resource::loadFont("arial");
-    Resource::loadFont("consola");
+    m_shaders["basic"] = new Shader("./shaders/basic");
 }
 
 void Resource::shutdown() {
@@ -26,7 +24,7 @@ void Resource::shutdown() {
     }
 }
 
-void Resource::loadFont(std::string font_name) {
+void Resource::loadFont(std::string font_name, int pixel_size) {
     
     if(m_fonts.count(font_name) != 0) return;
 
@@ -37,7 +35,7 @@ void Resource::loadFont(std::string font_name) {
     std::string font_path = "./fonts/" + font_name + ".ttf";
     ASSERT(FT_New_Face(ft, &font_path[0], 0, &face) == 0, "ERROR::FREETYPE: Failed to load font");
 
-    FT_Set_Pixel_Sizes(face, 0, FONT_LOAD_SIZE);
+    FT_Set_Pixel_Sizes(face, 0, pixel_size);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
   
     sTexture tmp_texture_structre;
