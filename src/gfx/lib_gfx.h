@@ -19,8 +19,8 @@ void create_window(const char * name, void (*render)(void));
 vec2 window_dims();
 void move_text_window(vec2 pos);
 
-const Keyboard & get_keyboard();
-const Mouse & get_mouse();
+std::queue<Keyboard> & get_keyboard();
+std::queue<Mouse> & get_mouse();
 
 // Drawing Related functions
 float render_char(const char the_char, vec2 pos, const sFont & font);

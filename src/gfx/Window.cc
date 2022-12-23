@@ -4,11 +4,13 @@
 GLFWwindow * Window::m_window = nullptr;
 
 uint32_t Window::m_width = 800, Window::m_height = 600;
+double Window::m_mouse_x = 0, Window::m_mouse_y = 0;
+
 
 double Window::m_delta_time = 0, Window::m_last_time = 0;
 
-Keyboard Window::keyboard;
-Mouse Window::mouse;  // TODO: Move from here
+std::queue<Keyboard> Window::keys = std::queue<Keyboard>();
+std::queue<Mouse> Window::mouse = std::queue<Mouse>();
 
 Window::Window() {}
 
@@ -47,7 +49,7 @@ void Window::create(const char * name, uint32_t width, uint32_t height) {
 	glfwSetCursorPosCallback(m_window, _handle_mouse_pos);
 	glfwSetMouseButtonCallback(m_window, _handle_mouse_key);
 
-	glfwSwapInterval(2);
+	glfwSwapInterval(10);
 }
 
 void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void)) {
@@ -72,11 +74,13 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 
 		render();
 
-		mouse.dx = mouse.dy = 0; // Reset Mouse deltas
-
 		GLCall(glfwSwapBuffers(m_window));
+
+		Window::keys = std::queue<Keyboard>();
+		Window::mouse = std::queue<Mouse>();
 		GLCall(glfwPollEvents());
-	    GLClearError();
+	    
+		GLClearError();
 	}
 
 	destroy();
@@ -86,47 +90,44 @@ void Window::_handle_resize(GLFWwindow* window, int width, int height) {
 	Window::m_width = width;
 	Window::m_height = height;
     glViewport(0, 0, width, height);
-    Resource::getShader("basic").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
-    Resource::getShader("text").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
+    Resource::useShader("basic").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
+    Resource::useShader("text").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
 }
 
 void Window::_handle_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (key== GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(Window::m_window, true);
 
-	switch (action) {
-	case GLFW_PRESS:
-		Window::keyboard.keys[key] = float(m_delta_time);
-		break;
-	case GLFW_RELEASE:
-		Window::keyboard.keys[key] = 0;
-		break;
-	case GLFW_REPEAT:
-		Window::keyboard.keys[key] = Window::keyboard.keys[key] + float(m_delta_time);
-		break;
-	}
+	keys.push({key, scancode, action, mods});
 }
 
 void Window::_handle_mouse_key(GLFWwindow* handle, int button, int action, int mods) {
-	switch (action) {
-	case GLFW_PRESS:
-	case GLFW_REPEAT:
-		Window::mouse.keys[button] = float(m_delta_time);
-		break;
-	case GLFW_RELEASE:
-		Window::mouse.keys[button] = 0.0f;
-		break;
+	if(mouse.empty()) {	
+		mouse.push({button, action, mods, Window::m_mouse_x, Window::m_mouse_y, 0, 0});
+	} else {
+		auto last = mouse.front();
+
+		last.key = button;
+		last.action = action;
+		last.mods = mods;
+		mouse.push(last);
 	}
 }
 
 void Window::_handle_mouse_pos(GLFWwindow* handle, double x, double y) {
-	mouse.delta_time = m_delta_time;
-	mouse.dx = mouse.x - x;
-	mouse.dy = mouse.y - y;
-	
-	// mouse.dx = saturate(mouse.dx, -100.0f, 100.0f);
-	// mouse.dy = saturate(mouse.dy, -100.0f, 100.0f);
+	Window::m_mouse_x = x, Window::m_mouse_y = y;
 
-	mouse.x = x;
-	mouse.y = y;
+	if(mouse.empty()) {
+		mouse.push({0, 0, 0, x, y, 0, 0});
+	} else {
+		auto last = mouse.front();
+
+		last.dx = x - last.x;
+		last.dy = y - last.y;
+
+		last.x = x;
+		last.y = y;
+
+		mouse.push(last);
+	}
 }

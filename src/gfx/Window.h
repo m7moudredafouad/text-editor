@@ -8,23 +8,24 @@
  */
 
 struct Keyboard {
-    float keys[1024];
+    int key, scancode, action, mods;
 };
 
 struct Mouse{
-    float keys[GLFW_MOUSE_BUTTON_LAST];
-    float x, y, dx, dy, delta_time;
+    int key, action, mods;
+    double x, y, dx, dy;
 };
 
 class Window {
 private:
     static GLFWwindow* m_window;
     static uint32_t m_width, m_height;
+    static double m_mouse_x, m_mouse_y;
     static double m_delta_time, m_last_time;
 
 public:     // Static Public Functions
-    static Keyboard keyboard;  // TODO: Move from here
-    static Mouse mouse;  // TODO: Move from here
+    static std::queue<Keyboard> keys;
+    static std::queue<Mouse> mouse;
     static Window & getInstance();
     static float width() {return (float)Window::m_width;}
     static float height() {return (float)Window::m_height;}

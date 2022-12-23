@@ -31,13 +31,9 @@ void move_text_window(vec2 pos) {
     Resource::useShader("text").setUniform("projection", glm::ortho(pos.x, pos.x + Window::width(), pos.y, pos.y + Window::height()));
 }
 
-const Keyboard & get_keyboard() {
-    return Window::keyboard;
-}
+std::queue<Keyboard> & get_keyboard() { return Window::keys; }
 
-const Mouse & get_mouse() {
-    return Window::mouse;
-}
+std::queue<Mouse> & get_mouse() { return Window::mouse; }
 
 // Drawing Related functions
 float render_char(const char the_char, vec2 pos, const sFont & font) {

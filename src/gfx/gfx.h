@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <string>
 #include <string.h>
+#include <queue>
 
 #include <gfx/error.h>
 
