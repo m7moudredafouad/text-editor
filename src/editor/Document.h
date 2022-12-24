@@ -22,6 +22,7 @@ public:
 
     void onClick(vec2 click_pos) {
         this->m_scrollbar.onClick(click_pos);
+        this->m_text.onClick(click_pos);
     }
 
     void onHoldAndMove(Mouse e) {
