@@ -6,6 +6,7 @@
 
 static std::shared_ptr<Document> test;
 
+
 void KeyboardEvents() {
     auto & keys = gfx::get_keyboard();
     
@@ -23,20 +24,56 @@ void KeyboardEvents() {
 }
 
 void MouseEvents() {
+    // static std::queue<Mouse> mouse_queue;
+    vec2 mouse_pos = gfx::get_mouse_pos();
+
     auto & mouse = gfx::get_mouse();
-    
-    while (!mouse.empty()) {
+
+    int mouse_queue_size = mouse.size();
+    while (mouse_queue_size-- > 0){
         auto e = mouse.front();
         mouse.pop();
+
+        e.dx = mouse_pos.x - e.x;
+        e.dy = mouse_pos.y - e.y;
+        e.x = mouse_pos.x;
+        e.y = mouse_pos.y;
         
-        if(e.action == GLFW_RELEASE) continue;
+        if(mouse_queue_size && mouse.front().action == GLFW_RELEASE) {
+            mouse.pop();
+            mouse_queue_size--;
+        } else {
+            mouse.push(e);
+        }
 
         if(e.key == GLFW_MOUSE_BUTTON_LEFT) {
-            ClickCommand cmd(test);
+            ClickCommand cmd(test, e);
             cmd.execute();
-            std::cout << e.x << ", " << e.y;
         }
     }
+    
+    // while (!mouse.empty()) {
+    //     auto e = mouse.front();
+    //     mouse.pop();
+
+    //     switch (e.action) {
+    //     case GLFW_PRESS:
+    //         mouse_queue.push(e);
+    //         break;
+    //     case GLFW_RELEASE:
+    //         // auto e2 = mouse_queue.front();
+    //         mouse_queue.pop();
+
+    //         // e.dx = e2.x - e.x;
+    //         // e.dy = e2.y - e.y;
+    //         break;
+    //     }
+
+    //     // if(e.key == GLFW_MOUSE_BUTTON_LEFT) {
+    //     //     ClickCommand cmd(test, e);
+    //     //     cmd.execute();
+    //     // }
+    // }
     
 }
 

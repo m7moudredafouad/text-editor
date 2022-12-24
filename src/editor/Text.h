@@ -46,7 +46,9 @@ public:
             pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * line_number + START_Y);
         }
 
+        pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * (line_number+1) + START_Y);
         m_max_dims.y = pos.y;
+    
     }
 
     vec2 get_dims() {return m_max_dims;}

@@ -11,11 +11,16 @@ public:
 class ClickCommand : public Command {
 private:
     std::shared_ptr<Document> m_doc;
+    Mouse m_mouse;
 public:
-    ClickCommand(std::shared_ptr<Document> doc) : m_doc(doc) {}
+    ClickCommand(std::shared_ptr<Document> doc, Mouse mouse) : m_doc(doc), m_mouse(mouse) {}
 
     void execute() {
-        m_doc->onClick();
+        if(m_mouse.dx || m_mouse.dy) {
+            m_doc->onHoldAndMove(m_mouse);
+        } else {
+            m_doc->onClick(vec2({m_mouse.x, m_mouse.y}));
+        }
     }
 };
 

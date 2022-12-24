@@ -20,8 +20,12 @@ public:
         m_scrollbar.Render(m_text.get_dims(), gfx::window_dims());
     }
 
-    void onClick() {
-        std::cout << "Clicked\n";
+    void onClick(vec2 click_pos) {
+        this->m_scrollbar.onClick(click_pos);
+    }
+
+    void onHoldAndMove(Mouse e) {
+        this->m_scrollbar.onHoldAndMove(vec2({e.dx, e.dy}));
     }
 
     void onWrite(char ch) {

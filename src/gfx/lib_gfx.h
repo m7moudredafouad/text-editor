@@ -21,6 +21,7 @@ void move_text_window(vec2 pos);
 
 std::queue<Keyboard> & get_keyboard();
 std::queue<Mouse> & get_mouse();
+vec2 get_mouse_pos();
 
 // Drawing Related functions
 float render_char(const char the_char, vec2 pos, const sFont & font);

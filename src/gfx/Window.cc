@@ -4,7 +4,7 @@
 GLFWwindow * Window::m_window = nullptr;
 
 uint32_t Window::m_width = 800, Window::m_height = 600;
-double Window::m_mouse_x = 0, Window::m_mouse_y = 0;
+float Window::m_mouse_x = 0, Window::m_mouse_y = 0;
 
 
 double Window::m_delta_time = 0, Window::m_last_time = 0;
@@ -49,7 +49,7 @@ void Window::create(const char * name, uint32_t width, uint32_t height) {
 	glfwSetCursorPosCallback(m_window, _handle_mouse_pos);
 	glfwSetMouseButtonCallback(m_window, _handle_mouse_key);
 
-	glfwSwapInterval(10);
+	glfwSwapInterval(5);
 }
 
 void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void)) {
@@ -77,7 +77,7 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 		GLCall(glfwSwapBuffers(m_window));
 
 		Window::keys = std::queue<Keyboard>();
-		Window::mouse = std::queue<Mouse>();
+		// Window::mouse = std::queue<Mouse>();
 		GLCall(glfwPollEvents());
 	    
 		GLClearError();
@@ -102,32 +102,35 @@ void Window::_handle_key(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 void Window::_handle_mouse_key(GLFWwindow* handle, int button, int action, int mods) {
-	if(mouse.empty()) {	
-		mouse.push({button, action, mods, Window::m_mouse_x, Window::m_mouse_y, 0, 0});
-	} else {
-		auto last = mouse.front();
 
-		last.key = button;
-		last.action = action;
-		last.mods = mods;
-		mouse.push(last);
-	}
+	mouse.push({button, action, mods, Window::m_mouse_x, Window::m_mouse_y, 0, 0});
+	// if(mouse.empty()) {	
+	// } else {
+	// 	auto last = mouse.front();
+
+	// 	last.key = button;
+	// 	last.action = action;
+	// 	last.mods = mods;
+	// 	last.x = Window::m_mouse_x;
+	// 	last.y = Window::m_mouse_y;
+	// 	mouse.push(last);
+	// }
 }
 
 void Window::_handle_mouse_pos(GLFWwindow* handle, double x, double y) {
 	Window::m_mouse_x = x, Window::m_mouse_y = y;
 
-	if(mouse.empty()) {
-		mouse.push({0, 0, 0, x, y, 0, 0});
-	} else {
-		auto last = mouse.front();
+	// if(mouse.empty()) {
+	// 	mouse.push({0, 0, 0, x, y, 0, 0});
+	// } else {
+	// 	auto last = mouse.front();
 
-		last.dx = x - last.x;
-		last.dy = y - last.y;
+	// 	last.dx = x - last.x;
+	// 	last.dy = y - last.y;
 
-		last.x = x;
-		last.y = y;
+	// 	last.x = x;
+	// 	last.y = y;
 
-		mouse.push(last);
-	}
+	// 	mouse.push(last);
+	// }
 }

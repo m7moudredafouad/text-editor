@@ -13,14 +13,14 @@ struct Keyboard {
 
 struct Mouse{
     int key, action, mods;
-    double x, y, dx, dy;
+    float x, y, dx, dy;
 };
 
 class Window {
 private:
     static GLFWwindow* m_window;
     static uint32_t m_width, m_height;
-    static double m_mouse_x, m_mouse_y;
+    static float m_mouse_x, m_mouse_y;
     static double m_delta_time, m_last_time;
 
 public:     // Static Public Functions
@@ -29,6 +29,8 @@ public:     // Static Public Functions
     static Window & getInstance();
     static float width() {return (float)Window::m_width;}
     static float height() {return (float)Window::m_height;}
+    static float mouse_x() {return Window::m_mouse_x;}
+    static float mouse_y() {return Window::m_mouse_y;}
     static float ratio() {return (float)Window::m_width / (float) Window::m_height;}
     static float delta_time() {return (float)m_delta_time;}
 

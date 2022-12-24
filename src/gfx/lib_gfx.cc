@@ -32,8 +32,8 @@ void move_text_window(vec2 pos) {
 }
 
 std::queue<Keyboard> & get_keyboard() { return Window::keys; }
-
 std::queue<Mouse> & get_mouse() { return Window::mouse; }
+vec2 get_mouse_pos() {return vec2({Window::mouse_x(), Window::mouse_y()});}
 
 // Drawing Related functions
 float render_char(const char the_char, vec2 pos, const sFont & font) {
