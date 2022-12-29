@@ -3,14 +3,14 @@
 
 GLFWwindow * Window::m_window = nullptr;
 
-uint32_t Window::m_width = 800, Window::m_height = 600;
+uint32_t Window::m_width = 1024, Window::m_height = 768;
 float Window::m_mouse_x = 0, Window::m_mouse_y = 0;
-
 
 double Window::m_delta_time = 0, Window::m_last_time = 0;
 
 std::queue<Keyboard> Window::keys = std::queue<Keyboard>();
 std::queue<Mouse> Window::mouse = std::queue<Mouse>();
+std::queue<WindowSize> Window::window_size = std::queue<WindowSize>();
 
 Window::Window() {}
 
@@ -49,7 +49,7 @@ void Window::create(const char * name, uint32_t width, uint32_t height) {
 	glfwSetCursorPosCallback(m_window, _handle_mouse_pos);
 	glfwSetMouseButtonCallback(m_window, _handle_mouse_key);
 
-	glfwSwapInterval(5);
+	glfwSwapInterval(1);
 }
 
 void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void)) {
@@ -90,6 +90,7 @@ void Window::_handle_resize(GLFWwindow* window, int width, int height) {
 	Window::m_width = width;
 	Window::m_height = height;
     glViewport(0, 0, width, height);
+	Window::window_size.push({width, height});
     Resource::useShader("basic").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
     Resource::useShader("text").setUniform("projection", glm::ortho(0.0f, float(width), 0.0f, float(height)));
 }

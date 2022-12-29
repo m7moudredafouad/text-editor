@@ -41,3 +41,16 @@ public:
         m_doc->onWrite(m_key.key);
     }
 };
+
+class ResizeCommand : public Command {
+private:
+    std::shared_ptr<Document> m_doc;
+    int m_width, m_height;
+public:
+    ResizeCommand(std::shared_ptr<Document> doc, int width, int height) :
+        m_doc(doc), m_width(width), m_height(height) {}
+
+    void execute() {
+        m_doc->onResize(m_width, m_height);
+    }
+};

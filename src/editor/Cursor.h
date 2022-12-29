@@ -6,8 +6,10 @@
 class Cursor {
 protected:
     vec2 m_dims;
+    int m_cursor_number_frame;
+    bool m_render_cursor;
 public:
-    Cursor() : m_dims({2.0f, FONT_SIZE}) {}
+    Cursor() : m_dims({1.0f, FONT_SIZE}), m_cursor_number_frame(0), m_render_cursor(false) {}
 
     // Pos: in the index of the char number pos.x in the line number pos.y
     virtual void Render(vec2 pos) = 0;
@@ -17,9 +19,11 @@ class NormalCursor : public Cursor {
 public:
     virtual void Render(vec2 pos) override {
 
-        pos.x = pos.x * 9 + START_X;
-
-        pos.y = pos.y * LINE_HEIGHT * FONT_SIZE + START_Y + (LINE_HEIGHT - 1) * FONT_SIZE / 2;
-        gfx::render_square(pos.x, pos.y, m_dims.x, m_dims.y, {0xFF, 0xFF, 0xFF, 0xFF});
+        if(--m_cursor_number_frame < 0) {
+            m_cursor_number_frame = CURSOR_RENDER_FRAME;
+            m_render_cursor = !m_render_cursor;
+        }
+        if(m_render_cursor)
+            gfx::render_square(pos.x, pos.y, m_dims.x, m_dims.y, {0xFF, 0xFF, 0xFF, 0xFF});
     }
 };

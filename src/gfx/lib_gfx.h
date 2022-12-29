@@ -21,6 +21,7 @@ void move_text_window(vec2 pos);
 
 std::queue<Keyboard> & get_keyboard();
 std::queue<Mouse> & get_mouse();
+std::queue<WindowSize> & get_window_size();
 vec2 get_mouse_pos();
 
 // Drawing Related functions

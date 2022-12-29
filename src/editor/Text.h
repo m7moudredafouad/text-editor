@@ -1,6 +1,10 @@
 #pragma once
 
+#include <iostream>
+#include <fstream>
 #include <string>
+#include <vector>
+
 #include <gfx/lib_gfx.h>
 #include <utilities/error.h>
 #include <utilities/data_types.h>
@@ -9,78 +13,85 @@
 
 class Text {
     NormalCursor m_cursor;
-    std::string m_buffer;
+    std::vector<std::string> m_lines;
+    std::ifstream m_file;
+    sDocumentFont m_font;
 
     vec2 m_max_dims,
-        m_cursor_pos;   // Mouse Line number and position in the line
+         m_cursor_pos,   // Mouse Line number and position in the line
+         m_window_dims, // Window Dimension
+         m_cols_rows; // Window Dimension
+private:
+    void PositionToIndex(vec2 & pos) {
+        // pos.x = (pos.x - START_X) / m_font.advance;
+        // pos.y = (pos.y - START_Y) / (m_font.line_height * m_font.font_size);
+        pos.x = (pos.x) / m_font.advance;
+        pos.y = (pos.y) / (m_font.line_height * m_font.font_size);
+    }
+
+    void IndexToPosition(vec2 & pos) {
+        // pos.x = m_font.advance * pos.x + START_X;
+        // pos.y = m_font.font_size * m_font.line_height * pos.y + START_Y;
+        // pos.y = START_Y + m_font.font_size * (pos.y * m_font.line_height + (m_font.line_height - 1) * 0.5);
+        pos.x = m_font.advance * pos.x;
+        pos.y = m_font.font_size * m_font.line_height * pos.y;
+    }
+
 public:
-    Text(char * file_name) : m_max_dims{0.0f, 0.0f}, m_cursor_pos(0, 0) {
-        FILE *file;
+    vec2 get_dims() {return {m_max_dims.x * m_font.advance, m_font.line_height * m_font.font_size * m_lines.size()};}
 
-        ASSERT((file = fopen(file_name, "r")) != nullptr, "File couldn't be opened");
-
-        fseek(file, 0, SEEK_END);
-        size_t len = ftell(file);
-        ASSERT(len > 0, "File not successfully read");
-
-        m_buffer = std::string(len+1, 0);
-
-        fseek(file, 0, SEEK_SET);
-        fread(&m_buffer[0], 1, len, file);
-
-        ASSERT(m_buffer.length() == len + 1, "file wasn't fully read");
-        ASSERT(fclose(file) == 0, "Couldn't close file");
+    Text(char * file_name) : m_font{0, 0} {
+        m_file.open(file_name);
+        std::string line;
+         if (m_file.is_open()) {
+            while (getline(m_file, line)) {
+                m_lines.push_back(line);
+                m_max_dims.x = std::max(size_t(m_max_dims.x), line.size());
+            }
+            
+            m_file.close();
+        }
     }
     ~Text() {}
 
-    void Render() {
-        static bool render_cursor = false;
-        static int cursor_number_frame = CURSOR_RENDER_FRAME;
+    void Render(vec2 start_pos) {
+        // m_cursor_pos -= start_pos;
+        PositionToIndex(start_pos);
+        start_pos.x = std::floor(start_pos.x);
+        start_pos.y = std::floor(start_pos.y);
+        // PositionToIndex(m_cursor_pos);
+        for(int i = start_pos.y; i < std::min(size_t(start_pos.y + m_cols_rows.y+1), m_lines.size()); i++) {
+            vec2 pos = vec2(0, i);
+            IndexToPosition(pos);
 
-        m_max_dims = vec2(0.0f, 0.0f);
-
-        float line_number = 0;
-        vec2 pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * line_number + START_Y);
-
-        for(const auto & the_char : m_buffer) {
-            if(the_char != '\n') {
-                pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", FONT_SIZE));
-                
-                continue;
+            for(const auto & the_char : m_lines[i]) {
+                pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", m_font.font_size));
             }
 
-            int last_char_number = std::floor((pos.x - START_X) / 9);
-            
-            if(line_number == m_cursor_pos.y && last_char_number < m_cursor_pos.x) {
-                m_cursor_pos.x = last_char_number;
+            if(i == m_cursor_pos.y){ 
+                m_cursor_pos.x = std::min(float(m_lines[i].length()), m_cursor_pos.x);
             }
-
-            line_number++;
-            m_max_dims.x = std::max(m_max_dims.x, pos.x);
-            pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * line_number + START_Y);
-
 
         }
 
-        pos = vec2(START_X, LINE_HEIGHT * FONT_SIZE * (line_number+1) + START_Y);
-        m_max_dims.y = pos.y;
+        std::cout << "Line: " << start_pos.y << " ==== > " << start_pos.y + m_cols_rows.y << std::endl;
 
-        if(--cursor_number_frame < 0) {
-            cursor_number_frame = CURSOR_RENDER_FRAME;
-            render_cursor = !render_cursor;
-        }
-        if(render_cursor) this->m_cursor.Render(m_cursor_pos);
+        // IndexToPosition(m_cursor_pos);
+        // IndexToPosition(start_pos);
+        // m_cursor_pos += start_pos;
+        // m_cursor.Render({m_cursor_pos.x + START_X, m_cursor_pos.y + START_Y});
     }
 
     void onClick(vec2 pos) {
-        // Calculate Mouse Position
-        m_cursor_pos.x = std::floor(pos.x / 9);
-        m_cursor_pos.y = std::floor(pos.y / (LINE_HEIGHT * FONT_SIZE));
-        std::cout << "Cursor Coord: " << m_cursor_pos.x << ", " << m_cursor_pos.y+1 << std::endl;
-
-        // Calculate Mouse Coordinates
-        // pos.y = m_cursor_pos.y * LINE_HEIGHT * FONT_SIZE + START_Y + (LINE_HEIGHT - 1) * FONT_SIZE / 2;
+        m_cursor_pos = pos;
     }
 
-    vec2 get_dims() {return m_max_dims;}
+    void onResize(int width, int height) {
+        m_window_dims = {width, height};
+        m_cols_rows.x = std::floor(width / m_font.advance);
+        m_cols_rows.y = std::floor(height / (m_font.line_height * m_font.font_size));
+    }
+
+    void onFontUpdate(const sDocumentFont & font) {m_font = font;}
+
 };

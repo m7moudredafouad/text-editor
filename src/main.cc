@@ -51,9 +51,23 @@ void MouseEvents() {
     }
 }
 
+void ResizeEvents() {
+    auto & sizes = gfx::get_window_size();
+    while (sizes.size() > 1) sizes.pop();
+
+    if(sizes.size() == 1) {
+        auto lastSize = sizes.front();
+        sizes.pop();
+        ResizeCommand cmd(test, lastSize.width, lastSize.height);
+        cmd.execute();
+    }
+
+}
+
 void loop() {
     KeyboardEvents();
     MouseEvents();
+    ResizeEvents();
     test->Render();
 }
 

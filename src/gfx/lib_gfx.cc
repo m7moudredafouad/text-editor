@@ -33,6 +33,8 @@ void move_text_window(vec2 pos) {
 
 std::queue<Keyboard> & get_keyboard() { return Window::keys; }
 std::queue<Mouse> & get_mouse() { return Window::mouse; }
+std::queue<WindowSize> & get_window_size() { return Window::window_size; }
+
 vec2 get_mouse_pos() {return vec2({Window::mouse_x(), Window::mouse_y()});}
 
 // Drawing Related functions

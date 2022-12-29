@@ -16,6 +16,10 @@ struct Mouse{
     float x, y, dx, dy;
 };
 
+struct WindowSize {
+    int width, height;
+};
+
 class Window {
 private:
     static GLFWwindow* m_window;
@@ -26,6 +30,7 @@ private:
 public:     // Static Public Functions
     static std::queue<Keyboard> keys;
     static std::queue<Mouse> mouse;
+    static std::queue<WindowSize> window_size;
     static Window & getInstance();
     static float width() {return (float)Window::m_width;}
     static float height() {return (float)Window::m_height;}
