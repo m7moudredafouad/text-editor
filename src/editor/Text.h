@@ -67,8 +67,7 @@ public:
 
     void Render(vec2 start_pos) {
         start_pos = dimension_to_idx(start_pos);
-        start_pos.x = std::floor(start_pos.x);
-        start_pos.y = std::floor(start_pos.y);
+        start_pos.floor();
 
         for(int i = start_pos.y; i < std::min(size_t(start_pos.y + m_cols_rows.y+1), m_lines.size()); i++) {
             vec2 pos = idx_to_dimension(vec2(0, i));
@@ -83,8 +82,9 @@ public:
 
     void onResize(int width, int height) {
         m_window_dims = {width, height};
-        m_cols_rows.x = std::floor(width / m_font.advance);
-        m_cols_rows.y = std::floor(height / (m_font.line_height * m_font.font_size));
+
+        m_cols_rows = dimension_to_idx(m_window_dims);
+        m_cols_rows.floor();
     }
 
     void onFontUpdate(const sDocumentFont & font) {m_font = font;}

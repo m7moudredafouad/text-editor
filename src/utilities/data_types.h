@@ -6,6 +6,16 @@ struct vec2 {
     vec2() : x(0), y(0) {}
     vec2(float x, float y) : x(x), y(y) {}
 
+    void floor() {
+        this->x = std::floor(this->x);
+        this->y = std::floor(this->y);
+    }
+
+    void ceil() {
+        this->x = std::ceil(this->x);
+        this->y = std::ceil(this->y);
+    }
+
     vec2 operator+ (const vec2 & other) {
         return vec2(this->x + other.x, this->y + other.y);
     }
