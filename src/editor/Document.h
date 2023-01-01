@@ -19,9 +19,10 @@ private:
          m_cursor_pos,   // Mouse Line number and position in the line
          m_window_dim,
          m_text_dim;
+    char m_should_render;
 
 public:
-    Document(char * file_name) : m_text(file_name), m_font{FONT_SIZE, LINE_HEIGHT} {
+    Document(char * file_name) : m_text(file_name), m_font{FONT_SIZE, LINE_HEIGHT}, m_should_render(2) {
         m_text.onFontUpdate(m_font);
 
         m_window_dim = gfx::window_dims();
@@ -32,12 +33,17 @@ public:
     }
 
     void Render() {
+        if(!m_should_render) return;
+        m_should_render =  m_should_render >> 1;
+        gfx::window_clear();
         m_scrollbar.Render(m_text_dim);
         m_text.Render(m_view_pos);
         m_cursor.Render(m_text.idx_to_dimension(m_cursor_pos) - m_view_pos);
     }
 
     void onClick(vec2 click_pos) {
+        m_should_render = true;
+
         if(this->m_scrollbar.onClick(click_pos)) return;
 
         this->m_text.onClick(click_pos);
@@ -47,12 +53,16 @@ public:
     }
 
     void onResize(int width, int height) {
+        m_should_render = true;
+
         m_window_dim = {width, height};
         m_text.onResize(width, height);
         m_scrollbar.onResize(width, height);
     }
 
     void onHoldAndMove(Mouse e) {
+        m_should_render = true;
+
         this->m_scrollbar.onHoldAndMove(vec2({e.dx, e.dy}));
         m_view_pos = m_scrollbar.get_position();
 
@@ -62,6 +72,8 @@ public:
     }
 
     void onWrite(char ch) {
+        m_should_render = true;
+
         std::cout << ch;
     }
     

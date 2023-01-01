@@ -17,6 +17,7 @@ struct sFont {
 // Window Related functions
 void create_window(const char * name, void (*render)(void));
 vec2 window_dims();
+void window_clear();
 void move_text_window(vec2 pos);
 
 std::queue<Keyboard> & get_keyboard();
@@ -26,7 +27,7 @@ vec2 get_mouse_pos();
 
 // Drawing Related functions
 float render_char(const char the_char, vec2 pos, const sFont & font);
-float render_text(const std::string & text, vec2 pos, const sFont & font);
+void render_line(const std::string & text, vec2 pos, const sFont & font);
 void render_square(float x, float y, float w, float h, const float (&color)[4]);
 
 

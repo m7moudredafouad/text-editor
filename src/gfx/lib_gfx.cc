@@ -27,6 +27,10 @@ vec2 window_dims() {
     return vec2(Window::width(), Window::height());
 }
 
+void window_clear() {
+    Window::clear();
+}
+
 void move_text_window(vec2 pos) {
     Resource::useShader("text").setUniform("projection", glm::ortho(pos.x, pos.x + Window::width(), pos.y, pos.y + Window::height()));
 }
@@ -44,12 +48,16 @@ float render_char(const char the_char, vec2 pos, const sFont & font) {
     return pos.x;
 }
 
-float render_text(const std::string & text, vec2 pos, const sFont & font) {
-    for(const auto & ch : text) {
-        pos.x = render_char(ch, pos, font);
-    }
+void render_line(const std::string & text, vec2 pos, const sFont & font) {
+    static CharMesh text_mesh(1000);
+    int size = text.size(), next_idx = 0, next_size;
 
-    return pos.x;
+    while(size > 0) {
+        next_size = std::min(size, 1000);
+        text_mesh.Render(text.substr(next_idx, next_size), pos.x, pos.y, pos.x, font.name, font.size, font.color);
+        size -= next_size;
+        next_idx += next_size;
+    }
 }
 
 void render_square(float x, float y, float w, float h, const float (&color)[4]) {

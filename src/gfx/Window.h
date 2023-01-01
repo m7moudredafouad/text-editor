@@ -38,6 +38,7 @@ public:     // Static Public Functions
     static float mouse_y() {return Window::m_mouse_y;}
     static float ratio() {return (float)Window::m_width / (float) Window::m_height;}
     static float delta_time() {return (float)m_delta_time;}
+    static void clear();
 
 private:    // Static Private Functions
     static void _handle_resize(GLFWwindow* window, int width, int height);

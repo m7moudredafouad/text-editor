@@ -19,11 +19,12 @@ class NormalCursor : public Cursor {
 public:
     virtual void Render(vec2 pos) override {
 
-        if(--m_cursor_number_frame < 0) {
-            m_cursor_number_frame = CURSOR_RENDER_FRAME;
-            m_render_cursor = !m_render_cursor;
-        }
-        if(m_render_cursor)
-            gfx::render_square(pos.x, pos.y, m_dims.x, m_dims.y, {0xFF, 0xFF, 0xFF, 0xFF});
+        // if(--m_cursor_number_frame < 0) {
+        //     m_cursor_number_frame = CURSOR_RENDER_FRAME;
+        //     m_render_cursor = !m_render_cursor;
+        // }
+        // if(m_render_cursor)
+        //     gfx::render_square(pos.x, pos.y, m_dims.x, m_dims.y, {0xFF, 0xFF, 0xFF, 0xFF});
+        gfx::render_square(pos.x, pos.y, m_dims.x, m_dims.y, {0xFF, 0xFF, 0xFF, 0xFF});
     }
 };

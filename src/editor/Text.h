@@ -20,19 +20,13 @@ class Text {
          m_cols_rows; // Window Dimension
 public:
     vec2 dimension_to_idx(const vec2 & pos) {
-        // pos.x = (pos.x - START_X) / m_font.advance;
-        // pos.y = (pos.y - START_Y) / (m_font.line_height * m_font.font_size);
         return vec2 {
-            (pos.x) / m_font.advance,
-            (pos.y) / (m_font.line_height * m_font.font_size)
+            pos.x / m_font.advance,
+            pos.y / (m_font.line_height * m_font.font_size)
         };
     }
 
     vec2 idx_to_dimension(const vec2 & pos) {
-        // pos.x = m_font.advance * pos.x + START_X;
-        // pos.y = m_font.font_size * m_font.line_height * pos.y + START_Y;
-        // pos.y = START_Y + m_font.font_size * (pos.y * m_font.line_height + (m_font.line_height - 1) * 0.5);
-
         return vec2 {
             m_font.advance * pos.x,
             m_font.font_size * m_font.line_height * pos.y
@@ -72,9 +66,10 @@ public:
         for(int i = start_pos.y; i < std::min(size_t(start_pos.y + m_cols_rows.y+1), m_lines.size()); i++) {
             vec2 pos = idx_to_dimension(vec2(0, i));
 
-            for(const auto & the_char : m_lines[i]) {
-                pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", m_font.font_size));
-            }
+            // for(const auto & the_char : m_lines[i]) {
+            //     pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", m_font.font_size));
+            // }
+            gfx::render_line(m_lines[i], pos, gfx::sFont("consola", m_font.font_size));
         }
     }
 

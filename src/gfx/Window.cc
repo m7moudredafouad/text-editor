@@ -65,25 +65,28 @@ void Window::loop(void (*init)(void), void (*render)(void), void (*destroy)(void
 	GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     while(!glfwWindowShouldClose(m_window)){
-		GLCall(glClearColor(0.18823f, 0.039215f, 0.141176f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		float current_time = glfwGetTime();
 		Window::m_delta_time = current_time - Window::m_last_time;
 		Window::m_last_time = current_time;
 
+		// GLCall(glClearColor(0.18823f, 0.039215f, 0.141176f, 1.0f));
+		// GLCall(glClear(GL_COLOR_BUFFER_BIT));
 		render();
-
 		GLCall(glfwSwapBuffers(m_window));
 
 		Window::keys = std::queue<Keyboard>();
-		// Window::mouse = std::queue<Mouse>();
 		GLCall(glfwPollEvents());
 	    
 		GLClearError();
 	}
 
 	destroy();
+}
+
+void Window::clear() {
+	GLCall(glClearColor(0.18823f, 0.039215f, 0.141176f, 1.0f));
+	GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
 void Window::_handle_resize(GLFWwindow* window, int width, int height) {
