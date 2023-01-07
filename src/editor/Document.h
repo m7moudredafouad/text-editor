@@ -10,17 +10,6 @@
 #include <editor/Cursor.h>
 
 class Document {
-private:
-    FullScrollBar m_scrollbar;
-    NormalCursor m_cursor;
-    Text m_text;
-    sDocumentFont m_font;
-    vec2 m_view_pos,    // Position of the scroll bars initially should be 0,0
-         m_cursor_pos,   // Mouse Line number and position in the line
-         m_window_dim,
-         m_text_dim;
-    char m_should_render;
-
 public:
     Document(char * file_name) : m_text(file_name), m_font{FONT_SIZE, LINE_HEIGHT}, m_should_render(2) {
         m_text.onFontUpdate(m_font);
@@ -42,18 +31,18 @@ public:
     }
 
     void onClick(vec2 click_pos) {
-        m_should_render = true;
+        this->force_render();
 
         if(this->m_scrollbar.onClick(click_pos)) return;
 
         this->m_text.onClick(click_pos);
         m_cursor_pos = m_text.get_cursor_idx(click_pos + m_view_pos);
 
-        std::cout << m_cursor_pos.x << "\t" << m_cursor_pos.y << std::endl; 
+        // std::cout << m_cursor_pos.x << "\t" << m_cursor_pos.y << std::endl; 
     }
 
     void onResize(int width, int height) {
-        m_should_render = true;
+        this->force_render();
 
         m_window_dim = {width, height};
         m_text.onResize(width, height);
@@ -61,7 +50,7 @@ public:
     }
 
     void onHoldAndMove(Mouse e) {
-        m_should_render = true;
+        this->force_render();
 
         this->m_scrollbar.onHoldAndMove(vec2({e.dx, e.dy}));
         m_view_pos = m_scrollbar.get_position();
@@ -72,10 +61,42 @@ public:
     }
 
     void onWrite(char ch) {
-        m_should_render = true;
+        this->force_render();
 
-        std::cout << ch;
+        m_text.onWrite(m_cursor_pos, ch);
+        m_cursor_pos.x++;
+        m_text_dim = m_text.get_dims();
+    }
+
+    void onNewLine() {
+        this->force_render();
+
+        m_text.onNewLine(m_cursor_pos);
+        m_cursor_pos.y++;
+        m_cursor_pos.x = 0;
+        m_text_dim = m_text.get_dims();
+    }
+
+    void onRemove() {
+        this->force_render();
+        m_text.onRemove(m_cursor_pos);
+        m_cursor_pos.x--;
+        m_text_dim = m_text.get_dims();
     }
     
     ~Document() {}
+
+private:
+    void force_render() {m_should_render = 2;}
+
+private:
+    FullScrollBar m_scrollbar;
+    NormalCursor m_cursor;
+    Text m_text;
+    sDocumentFont m_font;
+    vec2 m_view_pos,    // Position of the scroll bars initially should be 0,0
+         m_cursor_pos,   // Mouse Line number and position in the line
+         m_window_dim,
+         m_text_dim;
+    uint8_t m_should_render;
 };

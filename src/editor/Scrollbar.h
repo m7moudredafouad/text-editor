@@ -21,6 +21,7 @@ public:
     virtual bool onClick(vec2 pos) = 0;
     virtual void onResize(int width, int height) = 0;
     virtual void onHoldAndMove(vec2 delta) = 0;
+    virtual void onForceScroll(vec2 delta) = 0;
 };
 
 class HightScrollBar : public Scrollbar {
@@ -51,7 +52,11 @@ public:
 
     virtual void onHoldAndMove(vec2 delta) override {
         if(!m_active) return;
+        this->onForceScroll(delta);
+        
+    }
 
+    virtual void onForceScroll(vec2 delta) {
         if(m_last_click_pos.x >= m_window_dims.x - m_dims.x) {
             m_pos.y += delta.y;
 
@@ -90,7 +95,10 @@ public:
 
     virtual void onHoldAndMove(vec2 delta) override {
         if(!m_active) return;
+        this->onForceScroll(delta);
+    }
 
+    virtual void onForceScroll(vec2 delta) {
         if(m_last_click_pos.y >= m_window_dims.y - m_dims.y) {
             m_pos.x += delta.x;
 
@@ -129,6 +137,16 @@ public:
     virtual void onHoldAndMove(vec2 delta) override {
         this->m_height.onHoldAndMove(delta);
         this->m_width.onHoldAndMove(delta);
+
+        auto h_pos = this->m_height.get_position();
+        auto w_pos = this->m_width.get_position();
+
+        this->m_pos = vec2({w_pos.x, h_pos.y});
+    }
+
+    virtual void onForceScroll(vec2 delta) {
+        this->m_height.onForceScroll(delta);
+        this->m_width.onForceScroll(delta);
 
         auto h_pos = this->m_height.get_position();
         auto w_pos = this->m_width.get_position();

@@ -4,7 +4,7 @@
 #include <editor/Commands.h>
 #include <editor/settings.h>
 
-static std::shared_ptr<Document> test;
+static std::shared_ptr<Document> text_doc;
 
 
 void KeyboardEvents() {
@@ -16,10 +16,20 @@ void KeyboardEvents() {
         
         if(e.action == GLFW_RELEASE) continue;
 
+        Command * cmd;
+
         if(e.key >= GLFW_KEY_SPACE && e.key <= GLFW_KEY_GRAVE_ACCENT) {
-            WriteCommand cmd(test, e);
-            cmd.execute();
+            cmd = new WriteCommand(text_doc, e);
+        } else if(e.key == GLFW_KEY_ENTER) {
+            cmd = new NewLineCommand(text_doc);
+        }  else if(e.key == GLFW_KEY_BACKSPACE) {
+            cmd = new RemoveCommand(text_doc);
+        } else {
+            cmd = new NothingCommand(text_doc);
         }
+
+        cmd->execute();
+        delete cmd;
     }
 }
 
@@ -45,7 +55,7 @@ void MouseEvents() {
         }
 
         if(e.key == GLFW_MOUSE_BUTTON_LEFT) {
-            ClickCommand cmd(test, e);
+            ClickCommand cmd(text_doc, e);
             cmd.execute();
         }
     }
@@ -58,7 +68,7 @@ void ResizeEvents() {
     if(sizes.size() == 1) {
         auto lastSize = sizes.front();
         sizes.pop();
-        ResizeCommand cmd(test, lastSize.width, lastSize.height);
+        ResizeCommand cmd(text_doc, lastSize.width, lastSize.height);
         cmd.execute();
     }
 
@@ -68,14 +78,14 @@ void loop() {
     KeyboardEvents();
     MouseEvents();
     ResizeEvents();
-    test->Render();
+    text_doc->Render();
 }
 
 int main(int argc, char **argv) {
 
     ASSERT(argc >= 2, "The program needs 1 argument to run");
 
-    test = std::shared_ptr<Document> (new Document(argv[1]));
+    text_doc = std::shared_ptr<Document> (new Document(argv[1]));
 
 	gfx::create_window(argv[1], loop);
 	exit(EXIT_SUCCESS);
