@@ -60,6 +60,18 @@ public:
     }
 };
 
+class MoveCursorCommand : public Command {
+private:
+    uint32_t m_dir;
+public:
+    MoveCursorCommand(std::shared_ptr<Document> doc, uint32_t dir) :
+        Command(doc), m_dir(dir) {}
+
+    void execute() {
+        m_doc->onMoveCursor(m_dir);
+    }
+};
+
 /**
  * Commands from mouse
 */

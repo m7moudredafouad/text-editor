@@ -13,8 +13,8 @@
 
 struct sGapBuffer {
 public:
-    sGapBuffer(const std::string & buffer) : m_buffer(buffer), m_gap_idx(buffer.length()), m_gap_size(10){
-        m_buffer.resize(buffer.length() + m_gap_size);
+    sGapBuffer(const std::string & buffer) : m_buffer(buffer){
+        this->reset_gap();
     }
 
     std::string get_buffer(int start_from = 0) {
@@ -40,38 +40,59 @@ public:
         if(idx == m_gap_idx) return;
 
         if(idx < m_gap_idx) {
-            for(int i = m_gap_idx-1; i >= idx; i--){
-
+            for(int i = idx; i < m_gap_idx; i++)
                 m_buffer[i + m_gap_size] = m_buffer[i];
-                m_buffer[i] = '\0';
-            }
+        } else {
+            for(int i = m_gap_idx; i < idx; i++)
+                m_buffer[i] = m_buffer[i + m_gap_size];
         }
 
         m_gap_idx = idx;
     }
 
     void insert(int idx, char ch) {
-        if(m_gap_size == 0) {
-            m_gap_idx = m_buffer.length();
-            m_buffer.resize(m_buffer.length() + 10);
-            m_gap_size = 10;
-        }
+        idx = to_positive_idx(idx);
+        if(!m_gap_size) this->reset_gap();
 
         move_gap_to(idx);
         m_buffer[idx] = ch;
         m_gap_idx++;
         m_gap_size--;
-
     }
 
     void insert(int idx, const std::string & buffer) {
-        
+        idx = to_positive_idx(idx);
+        int buf_len = buffer.length();
+        if(buf_len > m_gap_size) {
+            m_buffer = this->get_buffer();
+            m_buffer = m_buffer.substr(0, idx) + buffer + m_buffer.substr(idx+1, m_buffer.length());
+            this->reset_gap();
+        } else {
+            move_gap_to(idx);
+            for(int i = 0; i < buf_len; i++)
+                m_buffer[idx+i] = buffer[i];
+            m_gap_idx += buf_len;
+            m_gap_size -= buf_len;
+        }
     }
 
     void remove(int idx, uint32_t len) {
+        idx = to_positive_idx(idx);
         move_gap_to(idx);
         m_gap_size += len;
     }
+
+private:
+void reset_gap() {
+    m_gap_size = 100;
+    m_gap_idx = m_buffer.length();
+    m_buffer.resize(m_gap_idx + 100);
+}
+
+int to_positive_idx(int idx) {
+    if(idx >= 0) return idx;
+    return this->length() + idx;
+}
 
 private:
     std::string m_buffer;
@@ -83,8 +104,8 @@ struct sLine {
     sLine *next, *prev;
 
     sLine() : data(sGapBuffer("")), next(nullptr), prev(nullptr) {}
-    sLine(sGapBuffer data) : data(data), next(nullptr), prev(nullptr) {}
-    sLine(sGapBuffer data, sLine *next, sLine *prev) : data(data), next(next), prev(prev) {}
+    sLine(const std::string & data) : data(sGapBuffer(data)), next(nullptr), prev(nullptr) {}
+    sLine(const std::string & data, sLine *next, sLine *prev) : data(sGapBuffer(data)), next(next), prev(prev) {}
 };
 
 
@@ -95,9 +116,11 @@ public:
 
     void Render(vec2 start_pos);
     void onClick(vec2 pos);
-    void onWrite(vec2 cursor_pos, char ch);
-    void onNewLine(vec2 cursor_pos);
-    void onRemove(vec2 cursor_pos);
+    void onWrite(vec2 & cursor_pos, char ch);
+    void onNewLine(vec2 & cursor_pos);
+    void onRemove(vec2 & cursor_pos);
+    void onMoveCursor(vec2 & cursor_pos, uint32_t dir);
+
     void onResize(int width, int height);
 
     vec2 dimension_to_idx(const vec2 & pos);
@@ -111,6 +134,7 @@ private:
     void push_back(const std::string & line);
     void insert_line(int idx, const std::string & line);
     sLine *get_line(int idx);
+    uint32_t get_max_line_width();
 
 private:
     std::vector<std::string> m_lines;

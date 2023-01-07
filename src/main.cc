@@ -24,6 +24,8 @@ void KeyboardEvents() {
             cmd = new NewLineCommand(text_doc);
         }  else if(e.key == GLFW_KEY_BACKSPACE) {
             cmd = new RemoveCommand(text_doc);
+        } else if(e.key >= GLFW_KEY_RIGHT && e.key <= GLFW_KEY_UP) {
+            cmd = new MoveCursorCommand(text_doc, e.key - GLFW_KEY_RIGHT);
         } else {
             cmd = new NothingCommand(text_doc);
         }

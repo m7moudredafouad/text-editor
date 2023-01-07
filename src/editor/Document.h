@@ -64,7 +64,6 @@ public:
         this->force_render();
 
         m_text.onWrite(m_cursor_pos, ch);
-        m_cursor_pos.x++;
         m_text_dim = m_text.get_dims();
     }
 
@@ -72,16 +71,18 @@ public:
         this->force_render();
 
         m_text.onNewLine(m_cursor_pos);
-        m_cursor_pos.y++;
-        m_cursor_pos.x = 0;
         m_text_dim = m_text.get_dims();
     }
 
     void onRemove() {
         this->force_render();
         m_text.onRemove(m_cursor_pos);
-        m_cursor_pos.x--;
         m_text_dim = m_text.get_dims();
+    }
+
+    void onMoveCursor(uint32_t dir) {
+        this->force_render();
+        m_text.onMoveCursor(m_cursor_pos, dir);
     }
     
     ~Document() {}

@@ -13,6 +13,11 @@ Text::Text(char * file_name) : m_max_chars(0), m_max_line(0), m_font{0, 0}, m_he
             m_max_chars = std::max(size_t(m_max_chars), line.size());
             m_max_line++;
         }
+
+        if(!m_max_line) {
+            m_max_line++;
+            this->push_back("");
+        }
         
         m_file.close();
     }
@@ -42,10 +47,9 @@ vec2 Text::idx_to_dimension(const vec2 & pos) {
 
 vec2 Text::get_cursor_idx(const vec2 & pos) {
     uint32_t line_number = std::floor(pos.y / (m_font.line_height * m_font.font_size));
-    line_number = std::min(line_number, m_max_line);
+    line_number = std::min(line_number, m_max_line-1);
 
     uint32_t char_number = std::floor(pos.x / m_font.advance);
-    // char_number = std::min(char_number, uint32_t(m_lines[line_number].length()));
     char_number = std::min(char_number, uint32_t(this->get_line(line_number)->data.get_buffer().length()));
 
     return { float(char_number), float(line_number) };
@@ -62,25 +66,21 @@ void Text::Render(vec2 start_pos) {
         i++, cur_line = cur_line->next) {
 
         vec2 pos = idx_to_dimension(vec2(0, i));
-
-        // for(const auto & the_char : m_lines[i]) {
-        //     pos.x = gfx::render_char(the_char, pos, gfx::sFont("consola", m_font.font_size));
-        // }
-        // gfx::render_line(m_lines[i], pos, gfx::sFont("consola", m_font.font_size));
         gfx::render_line(cur_line->data.get_buffer(), pos, gfx::sFont("consola", m_font.font_size));
     }
 }
 
 void Text::onClick(vec2 pos) {}
 
-void Text::onWrite(vec2 cursor_pos, char ch) {
+void Text::onWrite(vec2 & cursor_pos, char ch) {
     sLine *line = this->get_line(int(cursor_pos.y));
 
     line->data.insert(int(cursor_pos.x), ch);
     m_max_chars = std::max(size_t(m_max_chars), line->data.get_buffer().length());
+    cursor_pos.x++;
 }
 
-void Text::onNewLine(vec2 cursor_pos) {
+void Text::onNewLine(vec2 & cursor_pos) {
     sLine *line = this->get_line(int(cursor_pos.y));
 
     std::string buf = line->data.get_buffer(cursor_pos.x);
@@ -88,12 +88,72 @@ void Text::onNewLine(vec2 cursor_pos) {
 
     this->insert_line(cursor_pos.y+1, buf);
     m_max_line++;
+    cursor_pos.y++;
+    cursor_pos.x = 0;
 }
 
-void Text::onRemove(vec2 cursor_pos) {
+void Text::onRemove(vec2 & cursor_pos) {
     sLine *line = this->get_line(int(cursor_pos.y));
+
     if(int(cursor_pos.x) > 0) {
+        int data_len = line->data.length();
         line->data.remove(int(cursor_pos.x) - 1, 1);
+        if(data_len == m_max_chars) m_max_chars = get_max_line_width();
+        cursor_pos.x--;
+    } else {
+        int prev_data_len = line->prev->data.length();
+
+        line->prev->data.insert(prev_data_len, line->data.get_buffer());
+        line->prev->next = line->next;
+        line->next->prev = line->prev;
+        delete line;
+
+        cursor_pos.x = prev_data_len;
+        cursor_pos.y--;
+        m_max_line--;
+        m_max_chars = get_max_line_width();
+    }
+}
+
+void Text::onMoveCursor(vec2 & cursor_pos, uint32_t dir) {
+    sLine *line = this->get_line(int(cursor_pos.y));
+    sLine *prev = line->prev == m_head ? nullptr : line->prev;
+    sLine *next = line->next == m_tail ? nullptr : line->next;
+    switch (dir) {
+    case 0: // Right
+        if(cursor_pos.x < line->data.length()) {
+            cursor_pos.x++;
+            return;
+        }
+
+        if(next) {
+            cursor_pos.y++;
+            cursor_pos.x = 0;
+        }
+        break;
+    case 1: // Left
+        if(cursor_pos.x > 0) {
+            cursor_pos.x--;
+            return;
+        }
+
+        if(prev) {
+            cursor_pos.y--;
+            cursor_pos.x = prev->data.length();
+        }
+        break;
+    case 2: // Down
+        if(!next) return;
+        cursor_pos.y++;
+        cursor_pos.x = std::min(uint32_t(cursor_pos.x), next->data.length());
+        break;
+    case 3: // Up
+        if(!prev) return;
+        cursor_pos.y--;
+        cursor_pos.x = std::min(uint32_t(cursor_pos.x), prev->data.length());
+        break;
+    default:
+        break;
     }
 }
 
@@ -105,8 +165,7 @@ void Text::onResize(int width, int height) {
 }
 
 void Text::push_back(const std::string & line) {
-    sGapBuffer data(line);
-    sLine *new_line = new sLine(data, m_tail, m_tail->prev);
+    sLine *new_line = new sLine(line, m_tail, m_tail->prev);
     m_tail->prev->next = new_line;
     m_tail->prev = new_line;
 }
@@ -117,9 +176,8 @@ void Text::insert_line(int idx, const std::string & line) {
         return;
     }
 
-    sGapBuffer data(line);
     sLine *line_in_idx = get_line(idx);
-    sLine *new_line = new sLine(data, line_in_idx, line_in_idx->prev);
+    sLine *new_line = new sLine(line, line_in_idx, line_in_idx->prev);
 
     line_in_idx->prev->next = new_line;
     line_in_idx->prev = new_line;
@@ -134,4 +192,16 @@ sLine * Text::get_line(int idx) {
     ASSERT(target != nullptr && target != m_tail, "The given line index doesn't exist");
 
     return target;
+}
+
+uint32_t Text::get_max_line_width() {
+    uint32_t len = 0;
+    sLine *target = m_head->next;
+
+    while(target != m_tail) {
+        len = std::max(len, target->data.length());
+        target = target->next;
+    }
+
+    return len;
 }
