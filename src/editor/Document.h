@@ -37,8 +37,6 @@ public:
 
         this->m_text.onClick(click_pos);
         m_cursor_pos = m_text.get_cursor_idx(click_pos + m_view_pos);
-
-        // std::cout << m_cursor_pos.x << "\t" << m_cursor_pos.y << std::endl; 
     }
 
     void onResize(int width, int height) {
@@ -65,6 +63,7 @@ public:
 
         m_text.onWrite(m_cursor_pos, ch);
         m_text_dim = m_text.get_dims();
+        scroll_to_cursor();
     }
 
     void onNewLine() {
@@ -72,23 +71,44 @@ public:
 
         m_text.onNewLine(m_cursor_pos);
         m_text_dim = m_text.get_dims();
+        scroll_to_cursor();
     }
 
     void onRemove() {
         this->force_render();
         m_text.onRemove(m_cursor_pos);
         m_text_dim = m_text.get_dims();
+        scroll_to_cursor();
     }
 
     void onMoveCursor(uint32_t dir) {
         this->force_render();
         m_text.onMoveCursor(m_cursor_pos, dir);
+        scroll_to_cursor();
     }
     
     ~Document() {}
 
 private:
     void force_render() {m_should_render = 2;}
+    void scroll_to_cursor() {
+       vec2 cursor_pos = m_text.idx_to_dimension(m_cursor_pos) - m_view_pos;
+        if(cursor_pos.x < 0) {
+            m_scrollbar.onForceScroll({cursor_pos.x, 0});
+        } else if (cursor_pos.x > m_window_dim.x) {
+            m_scrollbar.onForceScroll({cursor_pos.x - m_window_dim.x * 0.95, 0});
+        }
+
+        if(cursor_pos.y < 0) {
+            m_scrollbar.onForceScroll({0, cursor_pos.y});
+        } else if (cursor_pos.y >= m_window_dim.y) {
+            m_scrollbar.onForceScroll({0, cursor_pos.y - m_window_dim.y * 0.95});
+        }
+
+        m_view_pos = m_scrollbar.get_position();
+        m_view_pos.x *= m_text_dim.x / m_window_dim.x;
+        m_view_pos.y *= m_text_dim.y / m_window_dim.y;
+    }
 
 private:
     FullScrollBar m_scrollbar;

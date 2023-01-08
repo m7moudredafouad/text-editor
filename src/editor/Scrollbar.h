@@ -52,17 +52,15 @@ public:
 
     virtual void onHoldAndMove(vec2 delta) override {
         if(!m_active) return;
-        this->onForceScroll(delta);
+        if(m_last_click_pos.x >= m_window_dims.x - m_dims.x)
+            this->onForceScroll(delta);
         
     }
 
     virtual void onForceScroll(vec2 delta) {
-        if(m_last_click_pos.x >= m_window_dims.x - m_dims.x) {
-            m_pos.y += delta.y;
-
-            if(m_pos.y < 0) m_pos.y = 0;
-            if(m_pos.y > m_window_dims.y - m_dims.y) m_pos.y = m_window_dims.y - m_dims.y;
-        }
+        m_pos.y += delta.y;
+        if(m_pos.y < 0) m_pos.y = 0;
+        if(m_pos.y > m_window_dims.y - m_dims.y) m_pos.y = m_window_dims.y - m_dims.y;
     }
 
 };
@@ -95,16 +93,15 @@ public:
 
     virtual void onHoldAndMove(vec2 delta) override {
         if(!m_active) return;
-        this->onForceScroll(delta);
+        if(m_last_click_pos.y >= m_window_dims.y - m_dims.y)
+            this->onForceScroll(delta);
     }
 
     virtual void onForceScroll(vec2 delta) {
-        if(m_last_click_pos.y >= m_window_dims.y - m_dims.y) {
-            m_pos.x += delta.x;
+        m_pos.x += delta.x;
 
-            if(m_pos.x < 0) m_pos.x = 0;
-            if(m_pos.x > m_window_dims.x - m_dims.x) m_pos.x = m_window_dims.x - m_dims.x;
-        }
+        if(m_pos.x < 0) m_pos.x = 0;
+        if(m_pos.x > m_window_dims.x - m_dims.x) m_pos.x = m_window_dims.x - m_dims.x;
     }
 };
 
