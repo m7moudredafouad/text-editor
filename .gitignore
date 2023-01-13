@@ -6,7 +6,6 @@ lib/glfw
 lib/glm
 lib/freetype
 bin
-fonts
 out
 Debug/
 .vscode

@@ -10,12 +10,12 @@ CC = g++ -g
 CFLAGS = -c -Wall
 CFLAGS += -Isrc -Ilib/glad/include -Ilib/glfw/include -Ilib/freetype/include -Ilib/glm
 
-LDFLAGS = -lm lib/glad/src/glad.o lib/freetype/build/libfreetype.a
+LDFLAGS = -lm -lpng16 lib/glad/src/glad.o lib/freetype/build/libfreetype.a -lpng -lz -lbz2
 
 ifeq ($(OS),Windows_NT)
 LDFLAGS += lib/glfw/lib/libglfw3dll.a
 else
-LDFLAGS += lib/glfw/src/libglfw3.a
+LDFLAGS += lib/glfw/build/src/libglfw3.a
 endif
 
 all: clean ${OUT_DIR}/${FILENAME}
@@ -27,9 +27,12 @@ dirs:
 
 libs:
 	cd lib/glad && $(CC) -o src/glad.o -Iinclude -c src/glad.c
-	@if [ $(OS) != "Windows_NT" ]; then\
-		cd lib/glfw && cmake . && make\
+
+	@if [ $(OS)!="Windows_NT" ]; then\
+		mkdir -p lib/glfw/build;\
+		cd lib/glfw/build && cmake .. && make;\
 	fi
+
 	mkdir -p lib/freetype/build
 	cd lib/freetype/build && cmake .. && make
 	mkdir -p lib/glm/build

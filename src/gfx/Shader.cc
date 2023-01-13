@@ -24,7 +24,7 @@ uint32_t Shader::_compile(std::string path, GLenum type) {
     char * text;
     uint32_t len;
 
-    ASSERT((fopen_s(&file,path.c_str(), "rb") == 0), 
+    ASSERT(file = fopen(path.c_str(), "rb"), 
                 "File not successfully read");
     fseek(file, 0, SEEK_END);
 

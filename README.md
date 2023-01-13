@@ -6,7 +6,7 @@ There are some good data structures for that problem:
 - [Gap buffer](https://en.wikipedia.org/wiki/Gap_buffer) _`which I used decided to use`_
 - [Piece table](https://en.wikipedia.org/wiki/Piece_table)
 
-[![demo video]()]()
+[![demo video](https://img.youtube.com/vi/z80M3mUxKdM/maxresdefault.jpg)](https://youtu.be/z80M3mUxKdM)
 
 
 # Build & Run
